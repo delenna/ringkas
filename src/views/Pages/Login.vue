@@ -81,7 +81,8 @@
         .then(function (response) {
           console.log(response.data);
           if (response.data.status) {
-            localStorage.setItem('user-ringkas', response.data.access_token);
+            localStorage.setItem('user-ringkas', response.data.data);
+            localStorage.setItem('access-token', response.data.access_token);
             Vue.$toast.success("Success Login");
             window.location.href = '/#/dashboard';
             // Vue.$router.push({ name: 'dashboard' });

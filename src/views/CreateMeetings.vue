@@ -60,50 +60,32 @@
               <div class="col-md-6">
                 <b-tabs content-class="mt-3">
                   <b-tab title="Raw" active>
-                    <div class="avatar-group">
-                      <b-avatar src="https://demos.creative-tim.com/argon-dashboard-pro-bs4/assets/img/theme/team-1.jpg" class="avatar-sm rounded-circle" :size="42"></b-avatar>
-                      <b-avatar src="https://demos.creative-tim.com/argon-dashboard-pro-bs4/assets/img/theme/team-2.jpg" class="avatar-sm rounded-circle" :size="42"></b-avatar>
-                      <b-avatar src="https://demos.creative-tim.com/argon-dashboard-pro-bs4/assets/img/theme/team-3.jpg" class="avatar-sm rounded-circle" :size="42"></b-avatar>
-                      <b-avatar src="https://demos.creative-tim.com/argon-dashboard-pro-bs4/assets/img/theme/team-4.jpg" class="avatar-sm rounded-circle" :size="42"></b-avatar>
-                    </div>
-                  </b-tab>
-                  <b-tab title="Timeline">
+                    <button type="button" class="btn btn-primary" @click="generateSTT">Generate Transkrip</button>
                     <div class="row">
-                      <div class="col-lg-10 mx-auto">
-                          
-                          <!-- Timeline -->
-                          <ul class="timeline">
-                              <li class="timeline-item bg-white rounded ml-3 p-4 shadow">
-                                <div class="timeline-arrow"></div>
-                                <span class="small text-gray"><i class="fa fa-clock-o mr-1"></i>21 March, 2019</span>
-                                <Editor
-                                  :key="indexA"
-                                  api-key="txmq3yqvqauvnr09z7186efnnahv2gb5ql5pfpjr5xwt5ews"
-                                  v-model="textVal"
-                                  :init="{
-                                    plugins: 'quickbars',
-                                    quickbars_selection_toolbar: 'backcolor',
-                                    menubar: false,
-                                    toolbar: false,
-                                    custom_colors: false,
-                                    color_map: form.color
-                                  }"
-                                />
-                                <!-- <p class="text-small mt-2 font-weight-light">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque scelerisque diam non nisi semper, et elementum lorem ornare. Maecenas placerat facilisis mollis. Duis sagittis ligula in sodales vehicula....</p> -->
-                              </li>
-                          </ul><!-- End -->
-
+                      <div class="col-lg-10">
+                        <Editor
+                          :key="indexA"
+                          api-key="txmq3yqvqauvnr09z7186efnnahv2gb5ql5pfpjr5xwt5ews"
+                          v-model="form.full_text"
+                          :init="{
+                            plugins: 'quickbars',
+                            quickbars_selection_toolbar: 'backcolor',
+                            menubar: false,
+                            toolbar: false,
+                            custom_colors: false,
+                            color_map: mapColor
+                          }"
+                        />
                       </div>
                       <div class="col-lg-2">
-                        {{ form.color }}
                         <div class="d-flex flex-column">
                           <div style="position: relative;" v-for="(val, k) in form.participant" :key="k">
                             <b-avatar :id="'ava-'+k"></b-avatar>
                             <div class="b-avatar-badge" style="position: absolute;right: 45%;bottom: -15%;">
                               <v-swatches 
-                                v-model="form.participantColor[k]" 
+                                v-model="form.color[k]" 
                                 :trigger-style="{width: '15px', height: '15px'}" 
-                                :popover-x="left" :popover-y="bottom"
+                                :popover-x="'left'" :popover-y="'bottom'"
                                 @input="addIndex"
                               >
                               </v-swatches>
@@ -113,6 +95,56 @@
                         </div>
                       </div>
                     </div>
+                  </b-tab>
+                  <b-tab title="Timeline">
+                    <div class="row">
+                      <div class="col-lg-12 mx-auto">
+                          
+                          <!-- Timeline -->
+                          <ul class="timeline">
+                              <li class="timeline-item bg-white rounded ml-3 p-4 shadow" v-for="(det, i) in form.detail" :key="i">
+                                <div class="timeline-arrow"></div>
+                                <span class="small text-gray mr-2"><i v-if="i % 2 == 0" class="far fa-smile text-success"></i><i v-else class="far fa-frown text-danger"></i></span>
+                                <span class="small text-gray">{{ det.start_time }} - {{ det.end_time }}</span>
+                                <Editor
+                                  :key="indexA"
+                                  api-key="txmq3yqvqauvnr09z7186efnnahv2gb5ql5pfpjr5xwt5ews"
+                                  v-model="det.transcript"
+                                  :init="{
+                                    plugins: 'quickbars',
+                                    quickbars_selection_toolbar: 'backcolor',
+                                    menubar: false,
+                                    toolbar: false,
+                                    custom_colors: false,
+                                    color_map: mapColor
+                                  }"
+                                />
+                                <!-- <p class="text-small mt-2 font-weight-light">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque scelerisque diam non nisi semper, et elementum lorem ornare. Maecenas placerat facilisis mollis. Duis sagittis ligula in sodales vehicula....</p> -->
+                              </li>
+                          </ul><!-- End -->
+
+                      </div>
+                      <div class="col-lg-2">
+                        <div class="d-flex flex-column">
+                          <div style="position: relative;" v-for="(val, k) in form.participant" :key="k">
+                            <b-avatar :id="'ava-'+k"></b-avatar>
+                            <div class="b-avatar-badge" style="position: absolute;right: 45%;bottom: -15%;">
+                              <v-swatches 
+                                v-model="form.color[k]" 
+                                :trigger-style="{width: '15px', height: '15px'}" 
+                                :popover-x="'left'" :popover-y="'bottom'"
+                                @input="addIndex"
+                              >
+                              </v-swatches>
+                            </div>
+                            <b-tooltip :target="'ava-'+k" :title="val"></b-tooltip>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </b-tab>
+                  <b-tab title="Word Cloud">
+                    <img :src="form.url_wordcloud" style="width: -webkit-fill-available;" v-if="form.url_wordcloud" />
                   </b-tab>
                 </b-tabs>
               </div>
@@ -146,25 +178,51 @@
       VSwatches,
       vueDropzone: vue2Dropzone
     },
+    computed: {
+      color() {
+        return this.form.color;
+      }
+    },
+    watch: {
+      color(newVal) {
+        let data = [];
+        
+        if (newVal) {
+          newVal.forEach((val, k) => {
+            data.push(val, 'black');
+          })
+          console.log('newVal', data);
+        }
+
+        this.mapColor = data;
+      },
+    },
     data() {
       return {
         form: {
-          email: '',
-          date: '',
+          title: '',
+          detail: [],
+          start_at: '',
           keyword: [],
           participant: [],
-          participantColor: [],
           color: [],
-          indexA: 0
+          full_text: "",
+          audio: null,
+          most_occur: null,
+          url_wordcloud: null
         },
+        indexA: 0,
+        mapColor: [],
         show: true,
         dropzoneOptions: {
-            url: 'https://staging.lenna.ai/ringkas/public/api/upload',
+            url: 'http://127.0.0.1:8000/api/upload',
             thumbnailWidth: 150,
             maxFilesize: 10,
-            headers: { "My-Awesome-Header": "header value" }
         },
-        textVal: '<p class="text-small mt-2 font-weight-light">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque scelerisque diam non nisi semper, et elementum lorem ornare. Maecenas placerat facilisis mollis. Duis sagittis ligula in sodales vehicula....</p>'
+        classObject: {
+          active: true,
+          'text-danger': false
+        }
       };
     },
     methods: {
@@ -187,8 +245,8 @@
       },
       addParticipant(val) {
         console.log(val)
-        this.form.color.push('#808080', 'Black');
-        this.form.participantColor.push('#808080');
+        this.form.color.push('#808080');
+        // this.form.participantColor.push('#808080');
         // setTimeout(this.addIndex(), 300);
       },
       addIndex(color) {
@@ -196,8 +254,40 @@
         this.indexA++;
       },
       onUpload(file,event) {
-        console.log(file);
-        console.log(event);
+        if (event.status) {
+          this.form.audio = event.audio_url;
+        }
+      },
+      generateSTT() {
+        console.log('form', this.form);
+        this.axios.post("http://127.0.0.1:8000/api/transkip", {
+          url: "gs://ringkas-semedi/20221219_ringkas_63a0a45d2d055.wav",
+          // url: this.form.audio.trim(),
+        })
+        .then((response) => {
+          if (response.data.status) {
+            this.form.full_text = response.data.data.full_text;
+            this.form.detail = response.data.data.detail;
+            this.form.most_occur = response.data.data.most_occur;
+            this.form.url_wordcloud = response.data.data.url_wordcloud;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+      },
+      dummySentiment(i) {
+        if (i % 2) {
+          return {
+            "far fa-smile": true,
+            "text-success": true,
+          }
+        } else {
+          return {
+            "far fa-frown": true,
+            "text-danger": true,
+          }
+        }
       }
     },
   };
