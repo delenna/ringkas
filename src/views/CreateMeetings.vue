@@ -32,12 +32,13 @@
                   label="Title"
                   label-for="input-1"
                 >
-                  <b-form-file
+                  <!-- <b-form-file
                     v-model="file1"
                     :state="Boolean(file1)"
                     placeholder="Choose a file or drop it here..."
                     drop-placeholder="Drop file here..."
-                  ></b-form-file>
+                  ></b-form-file> -->
+                  <vue-dropzone ref="myVueDropzone" id="dropzone" :options="dropzoneOptions" @vdropzone-success="onUpload"></vue-dropzone>
                 </b-form-group>
                 <b-form-group
                   id="input-group-1"
@@ -52,6 +53,7 @@
                   label-for="input-1"
                 >
                   <input-tag v-model="form.participant" @input="addParticipant"></input-tag>
+                  <!-- <v-select @input="addParticipant" taggable></v-select> -->
                 </b-form-group>
                 
               </div>
@@ -72,32 +74,39 @@
                           <!-- Timeline -->
                           <ul class="timeline">
                               <li class="timeline-item bg-white rounded ml-3 p-4 shadow">
-                                  <div class="timeline-arrow"></div>
-                                  <span class="small text-gray"><i class="fa fa-clock-o mr-1"></i>21 March, 2019</span>
-                                  <Editor
-                                    :key="form.color.length"
-                                    api-key="txmq3yqvqauvnr09z7186efnnahv2gb5ql5pfpjr5xwt5ews"
-                                    v-model="textVal"
-                                    :init="{
-                                      plugins: 'quickbars',
-                                      quickbars_selection_toolbar: 'backcolor',
-                                      menubar: false,
-                                      toolbar: false,
-                                      custom_colors: false,
-                                      color_map: form.color
-                                    }"
-                                  />
-                                  <!-- <p class="text-small mt-2 font-weight-light">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque scelerisque diam non nisi semper, et elementum lorem ornare. Maecenas placerat facilisis mollis. Duis sagittis ligula in sodales vehicula....</p> -->
+                                <div class="timeline-arrow"></div>
+                                <span class="small text-gray"><i class="fa fa-clock-o mr-1"></i>21 March, 2019</span>
+                                <Editor
+                                  :key="indexA"
+                                  api-key="txmq3yqvqauvnr09z7186efnnahv2gb5ql5pfpjr5xwt5ews"
+                                  v-model="textVal"
+                                  :init="{
+                                    plugins: 'quickbars',
+                                    quickbars_selection_toolbar: 'backcolor',
+                                    menubar: false,
+                                    toolbar: false,
+                                    custom_colors: false,
+                                    color_map: form.color
+                                  }"
+                                />
+                                <!-- <p class="text-small mt-2 font-weight-light">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque scelerisque diam non nisi semper, et elementum lorem ornare. Maecenas placerat facilisis mollis. Duis sagittis ligula in sodales vehicula....</p> -->
                               </li>
                           </ul><!-- End -->
 
                       </div>
                       <div class="col-lg-2">
+                        {{ form.color }}
                         <div class="d-flex flex-column">
                           <div style="position: relative;" v-for="(val, k) in form.participant" :key="k">
                             <b-avatar :id="'ava-'+k"></b-avatar>
-                            <div class="b-avatar-badge" style="position: absolute;right: 50%;bottom: 0;">
-                              <v-swatches v-model="form.color[k]" :trigger-style="{width: '15px', height: '15px'}"></v-swatches>
+                            <div class="b-avatar-badge" style="position: absolute;right: 45%;bottom: -15%;">
+                              <v-swatches 
+                                v-model="form.participantColor[k]" 
+                                :trigger-style="{width: '15px', height: '15px'}" 
+                                :popover-x="left" :popover-y="bottom"
+                                @input="addIndex"
+                              >
+                              </v-swatches>
                             </div>
                             <b-tooltip :target="'ava-'+k" :title="val"></b-tooltip>
                           </div>
@@ -124,14 +133,18 @@
   import Editor from '@tinymce/tinymce-vue';
   import vSelect from 'vue-select';
   import InputTag from 'vue-input-tag';
-  import VSwatches from 'vue-swatches'
+  import VSwatches from 'vue-swatches';
+  import 'vue-swatches/dist/vue-swatches.css';
+  import vue2Dropzone from 'vue2-dropzone';
+  import 'vue2-dropzone/dist/vue2Dropzone.min.css';
 
   export default {
     components: {
       Editor,
       vSelect,
       InputTag,
-      VSwatches
+      VSwatches,
+      vueDropzone: vue2Dropzone
     },
     data() {
       return {
@@ -140,9 +153,17 @@
           date: '',
           keyword: [],
           participant: [],
-          color: []
+          participantColor: [],
+          color: [],
+          indexA: 0
         },
         show: true,
+        dropzoneOptions: {
+            url: 'https://staging.lenna.ai/ringkas/public/api/upload',
+            thumbnailWidth: 150,
+            maxFilesize: 10,
+            headers: { "My-Awesome-Header": "header value" }
+        },
         textVal: '<p class="text-small mt-2 font-weight-light">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque scelerisque diam non nisi semper, et elementum lorem ornare. Maecenas placerat facilisis mollis. Duis sagittis ligula in sodales vehicula....</p>'
       };
     },
@@ -164,8 +185,19 @@
           this.show = true
         })
       },
-      addParticipant() {
-        this.form.color.push('#808080');
+      addParticipant(val) {
+        console.log(val)
+        this.form.color.push('#808080', 'Black');
+        this.form.participantColor.push('#808080');
+        // setTimeout(this.addIndex(), 300);
+      },
+      addIndex(color) {
+        console.log(color);
+        this.indexA++;
+      },
+      onUpload(file,event) {
+        console.log(file);
+        console.log(event);
       }
     },
   };

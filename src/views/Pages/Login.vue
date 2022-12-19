@@ -22,17 +22,17 @@
                 <b-form role="form" @submit.prevent="handleSubmit(onSubmit)">
                   <base-input alternative
                               class="mb-3"
-                              name="Email"
-                              :rules="{required: true, email: true}"
+                              name="name"
+                              :rules="{required: true}"
                               prepend-icon="ni ni-email-83"
-                              placeholder="Email"
-                              v-model="model.email">
+                              placeholder="name"
+                              v-model="model.name">
                   </base-input>
 
                   <base-input alternative
                               class="mb-3"
                               name="Password"
-                              :rules="{required: true, min: 6}"
+                              :rules="{required: true}"
                               prepend-icon="ni ni-lock-circle-open"
                               type="password"
                               placeholder="Password"
@@ -46,25 +46,26 @@
               </validation-observer>
             </b-card-body>
           </b-card>
-          <b-row class="mt-3">
+          <!-- <b-row class="mt-3">
             <b-col cols="6">
               <router-link to="/dashboard" class="text-light"><small>Forgot password?</small></router-link>
             </b-col>
             <b-col cols="6" class="text-right">
               <router-link to="/register" class="text-light"><small>Create new account</small></router-link>
             </b-col>
-          </b-row>
+          </b-row> -->
         </b-col>
       </b-row>
     </b-container>
   </div>
 </template>
 <script>
+  import Vue from 'vue';
   export default {
     data() {
       return {
         model: {
-          email: '',
+          name: '',
           password: '',
           rememberMe: false
         }
@@ -73,6 +74,23 @@
     methods: {
       onSubmit() {
         // this will be called only after form is valid. You can do api call here to login
+        this.axios.post("https://staging.lenna.ai/ringkas/public/api/login", {
+          name: this.model.name,
+          password: this.model.password
+        })
+        .then(function (response) {
+          console.log(response.data);
+          if (response.data.status) {
+            localStorage.setItem('user-ringkas', response.data.access_token);
+            Vue.$toast.success("Success Login");
+            window.location.href = '/#/dashboard';
+            // Vue.$router.push({ name: 'dashboard' });
+          }
+        })
+        .catch(function (err) {
+          console.log(err);
+        })
+
       }
     }
   };
